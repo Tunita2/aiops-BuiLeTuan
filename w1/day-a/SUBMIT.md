@@ -22,3 +22,10 @@ Thử nghiệm với tham số `contamination` của Isolation Forest:
 - Model nào tốt hơn? Tùy thuộc vào việc Recall hay Precision quan trọng hơn, nhưng thường Isolation Forest có độ chính xác cao hơn sau khi thêm feature context.
 - Trade-off giữa 2 phương pháp? Z-Score cực kỳ nhanh nhưng có thể miss hoặc báo nhầm nếu bị Skew nặng. Isolation Forest cần train lâu hơn, phức tạp hơn nhưng bắt được correlation.
 - Production choice: Trong AIOps, hệ thống sẽ ưu tiên các Model có **Recall cao**, thà báo động nhầm (False Alarm) còn hơn bỏ sót (Miss) sự cố thực sự làm mất thời gian downtime và gây thiệt hại lớn (revenue lost). Dùng Z-Score làm First-pass và Isolation Forest làm Second-pass filter là lý tưởng nhất.
+
+## 5. Screenshots (Kết quả chạy code)
+![Plot Results](plot_results.png)
+
+## 6. Knowledge Check (Viết tay)
+![Knowledge Check 1](a.jpg)
+![Knowledge Check 2](b.jpg)
