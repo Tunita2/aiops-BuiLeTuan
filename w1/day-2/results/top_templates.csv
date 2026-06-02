@@ -1,0 +1,11 @@
+template_id,template,count,percentage
+73,"- <*> 2005.07.09 <*> <*> <*> RAS KERNEL INFO generating <*>",180,9.00
+85,"- <*> <*> <*> <*> <*> RAS KERNEL INFO <*> floating point alignment exceptions",121,6.05
+2,"- <*> <*> <*> <*> <*> RAS KERNEL INFO <*> double-hummer alignment exceptions",109,5.45
+3,"- <*> <*> <*> <*> <*> RAS KERNEL INFO CE sym <*> at <*> mask <*>",92,4.60
+77,"- <*> 2005.07.13 <*> <*> <*> RAS KERNEL INFO generating <*>",87,4.35
+138,"- <*> 2005.12.01 <*> <*> <*> RAS KERNEL INFO <*> total interrupts. 0 critical input interrupts. 0 microseconds total spent on critical input interrupts, 0 microseconds max time in a critical input interrupt.",71,3.55
+119,"- <*> 2005.11.04 <*> <*> <*> RAS KERNEL INFO iar <*> dear <*>",61,3.05
+14,"KERNDTLB <*> 2005.06.11 R30-M0-N9-C:J16-U01 <*> R30-M0-N9-C:J16-U01 RAS KERNEL FATAL data TLB error interrupt",60,3.00
+118,"- <*> 2005.11.03 <*> <*> <*> RAS KERNEL INFO iar <*> dear <*>",59,2.95
+137,"- <*> 2005.12.01 <*> <*> <*> RAS KERNEL INFO 0 microseconds spent in the rbs signal handler during 0 calls. 0 microseconds was the maximum time for a single instance of a correctable ddr.",51,2.55
