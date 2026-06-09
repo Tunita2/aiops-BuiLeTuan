@@ -1,0 +1,83 @@
+{
+  "clusters_analyzed": 3,
+  "results": [
+    {
+      "cluster_id": "c-000-000",
+      "graph_top3": [
+        [
+          "payment-svc",
+          0.77
+        ],
+        [
+          "checkout-svc",
+          0.5
+        ],
+        [
+          "cart-svc",
+          0.44
+        ]
+      ],
+      "root_cause": "payment-svc",
+      "class": "connection_pool_exhaustion",
+      "confidence": 0.77,
+      "actions": [
+        "Rollback to v3.1",
+        "Scale pool 50 → 100 cushion",
+        "Add pool monitor alert > 80%"
+      ],
+      "reasoning": "Matched historical incident INC-2025-11-08 (similarity=1.00): Payment-svc v3.2 deploy at 09:42 leak DB pool. Pool 50/50 used trong 5 phút. Downstream checkout cascade. Notification queue backed up.",
+      "similar_incidents": [
+        "INC-2025-11-08",
+        "INC-2026-03-20",
+        "INC-2025-09-05"
+      ],
+      "method": "graph+knn"
+    },
+    {
+      "cluster_id": "c-000-001",
+      "graph_top3": [
+        [
+          "recommender-svc",
+          1.0
+        ]
+      ],
+      "root_cause": "recommender-svc",
+      "class": "memory_leak",
+      "confidence": 1.0,
+      "actions": [
+        "Patch leak; rollback v3.0 trong khi chờ",
+        "Add gc.collect() trong handler"
+      ],
+      "reasoning": "Matched historical incident INC-2025-08-02 (similarity=0.60): Recommender OOM mỗi 4h sau deploy v3.1. Pandas DataFrame không release giữa request.",
+      "similar_incidents": [
+        "INC-2025-08-02",
+        "INC-2025-10-28",
+        "INC-2026-03-07"
+      ],
+      "method": "graph+knn"
+    },
+    {
+      "cluster_id": "c-000-002",
+      "graph_top3": [
+        [
+          "search-svc",
+          1.0
+        ]
+      ],
+      "root_cause": "search-svc",
+      "class": "n_plus_1",
+      "confidence": 1.0,
+      "actions": [
+        "Batch fetch related products",
+        "Add monitoring query count / request"
+      ],
+      "reasoning": "Matched historical incident INC-2026-01-29 (similarity=0.80): Search trả 3s sau khi enable 'related products' feature. N+1 query trên catalog-db.",
+      "similar_incidents": [
+        "INC-2026-01-29",
+        "INC-2026-05-25",
+        "INC-2025-12-01"
+      ],
+      "method": "graph+knn"
+    }
+  ]
+}
