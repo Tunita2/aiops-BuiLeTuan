@@ -1,0 +1,130 @@
+# W3-D1 Burn Rate Alert Rules — Bui Le Tuan
+# Multi-Window Multi-Burn-Rate (MWMBR) per Google SRE Workbook Ch 5
+# 3 tiers × 3 services = 9 rules
+# Tier 1: 1h/5m, burn ≥ 14.4 (page) — 2% budget in 1h
+# Tier 2: 6h/30m, burn ≥ 6 (page)   — 5% budget in 6h
+# Tier 3: 3d/6h, burn ≥ 1 (ticket)  — 10% budget in 3d
+
+groups:
+# ====================================================================
+# API — SLO 99.9% (error budget = 0.001)
+# ====================================================================
+- name: api-slo
+  rules:
+  - alert: api_burn_rate_tier1
+    expr: |
+      (sum(rate(http_requests_total{status=~"5..|429"}[1h]))
+       / sum(rate(http_requests_total[1h]))) / (1 - 0.999) >= 14.4
+      AND
+      (sum(rate(http_requests_total{status=~"5..|429"}[5m]))
+       / sum(rate(http_requests_total[5m]))) / (1 - 0.999) >= 14.4
+    labels: {severity: page, tier: "1"}
+    annotations:
+      summary: "API burn rate ≥ 14.4 — budget exhausted in ~50h at this pace"
+      runbook: "https://runbooks.example.com/slo-burn-api"
+
+  - alert: api_burn_rate_tier2
+    expr: |
+      (sum(rate(http_requests_total{status=~"5..|429"}[6h]))
+       / sum(rate(http_requests_total[6h]))) / (1 - 0.999) >= 6
+      AND
+      (sum(rate(http_requests_total{status=~"5..|429"}[30m]))
+       / sum(rate(http_requests_total[30m]))) / (1 - 0.999) >= 6
+    labels: {severity: page, tier: "2"}
+    annotations:
+      summary: "API burn rate ≥ 6 — budget exhausted in ~5 days"
+      runbook: "https://runbooks.example.com/slo-burn-api"
+
+  - alert: api_burn_rate_tier3
+    expr: |
+      (sum(rate(http_requests_total{status=~"5..|429"}[3d]))
+       / sum(rate(http_requests_total[3d]))) / (1 - 0.999) >= 1
+      AND
+      (sum(rate(http_requests_total{status=~"5..|429"}[6h]))
+       / sum(rate(http_requests_total[6h]))) / (1 - 0.999) >= 1
+    labels: {severity: ticket, tier: "3"}
+    annotations:
+      summary: "API burn rate ≥ 1 — budget on track to exhaust within window"
+      runbook: "https://runbooks.example.com/slo-burn-api"
+
+# ====================================================================
+# DB — SLO 99.9% (error budget = 0.001)
+# ====================================================================
+- name: db-slo
+  rules:
+  - alert: db_burn_rate_tier1
+    expr: |
+      (sum(rate(pg_query_total{success!="true"}[1h]))
+       / sum(rate(pg_query_total[1h]))) / (1 - 0.999) >= 14.4
+      AND
+      (sum(rate(pg_query_total{success!="true"}[5m]))
+       / sum(rate(pg_query_total[5m]))) / (1 - 0.999) >= 14.4
+    labels: {severity: page, tier: "1"}
+    annotations:
+      summary: "DB burn rate ≥ 14.4 — critical query failure spike"
+      runbook: "https://runbooks.example.com/slo-burn-db"
+
+  - alert: db_burn_rate_tier2
+    expr: |
+      (sum(rate(pg_query_total{success!="true"}[6h]))
+       / sum(rate(pg_query_total[6h]))) / (1 - 0.999) >= 6
+      AND
+      (sum(rate(pg_query_total{success!="true"}[30m]))
+       / sum(rate(pg_query_total[30m]))) / (1 - 0.999) >= 6
+    labels: {severity: page, tier: "2"}
+    annotations:
+      summary: "DB burn rate ≥ 6 — sustained query degradation"
+      runbook: "https://runbooks.example.com/slo-burn-db"
+
+  - alert: db_burn_rate_tier3
+    expr: |
+      (sum(rate(pg_query_total{success!="true"}[3d]))
+       / sum(rate(pg_query_total[3d]))) / (1 - 0.999) >= 1
+      AND
+      (sum(rate(pg_query_total{success!="true"}[6h]))
+       / sum(rate(pg_query_total[6h]))) / (1 - 0.999) >= 1
+    labels: {severity: ticket, tier: "3"}
+    annotations:
+      summary: "DB burn rate ≥ 1 — slow budget erosion"
+      runbook: "https://runbooks.example.com/slo-burn-db"
+
+# ====================================================================
+# Frontend — SLO 99% (error budget = 0.01)
+# ====================================================================
+- name: frontend-slo
+  rules:
+  - alert: frontend_burn_rate_tier1
+    expr: |
+      (sum(rate(rum_page_load_fail_total[1h]))
+       / sum(rate(rum_page_load_total[1h]))) / (1 - 0.99) >= 14.4
+      AND
+      (sum(rate(rum_page_load_fail_total[5m]))
+       / sum(rate(rum_page_load_total[5m]))) / (1 - 0.99) >= 14.4
+    labels: {severity: page, tier: "1"}
+    annotations:
+      summary: "Frontend burn rate ≥ 14.4 — massive page load failures"
+      runbook: "https://runbooks.example.com/slo-burn-frontend"
+
+  - alert: frontend_burn_rate_tier2
+    expr: |
+      (sum(rate(rum_page_load_fail_total[6h]))
+       / sum(rate(rum_page_load_total[6h]))) / (1 - 0.99) >= 6
+      AND
+      (sum(rate(rum_page_load_fail_total[30m]))
+       / sum(rate(rum_page_load_total[30m]))) / (1 - 0.99) >= 6
+    labels: {severity: page, tier: "2"}
+    annotations:
+      summary: "Frontend burn rate ≥ 6 — sustained CDN/page load degradation"
+      runbook: "https://runbooks.example.com/slo-burn-frontend"
+
+  - alert: frontend_burn_rate_tier3
+    expr: |
+      (sum(rate(rum_page_load_fail_total[3d]))
+       / sum(rate(rum_page_load_total[3d]))) / (1 - 0.99) >= 1
+      AND
+      (sum(rate(rum_page_load_fail_total[6h]))
+       / sum(rate(rum_page_load_total[6h]))) / (1 - 0.99) >= 1
+    labels: {severity: ticket, tier: "3"}
+    annotations:
+      summary: "Frontend burn rate ≥ 1 — gradual page quality degradation"
+      runbook: "https://runbooks.example.com/slo-burn-frontend"

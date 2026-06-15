@@ -1,0 +1,67 @@
+# W3-D1 SLO Specification — Bui Le Tuan
+# Generated from baseline.json (3-day synthetic data)
+# Stack: React frontend (CDN) → FastAPI (4 instances) → Postgres (primary/replica)
+
+version: 1
+services:
+  # ---------------------------------------------------------------
+  # API — Request-response service
+  # Baseline: success_rate=0.9763, fail_rate=0.0035, latency_p99=156ms
+  # Normal-operation fail rate (excluding incidents) ≈ 0.001 (0.1%)
+  # ---------------------------------------------------------------
+  - name: api
+    sli:
+      name: api_availability
+      kind: availability
+      formula: "count(status in [2xx,3xx,4xx_not_429] AND latency_ms < 500ms) / count(all requests)"
+      promql_good: 'sum(rate(http_requests_total{status!~"5..|429"}[1m]))'
+      promql_total: 'sum(rate(http_requests_total[1m]))'
+      source: data/access_log.jsonl
+    slo:
+      target: 0.999          # 99.9% — baseline normal ~99.65%, gives room for improvement
+      window_days: 30
+    budget:
+      total_events_per_month: 20737800    # 691260 events/day × 30
+      allowed_failures_per_month: 20737   # (1 - 0.999) × 20737800
+      downtime_minutes_equivalent: 43     # 20737 / (691260/1440) ≈ 43 min
+
+  # ---------------------------------------------------------------
+  # DB — Storage / query service
+  # Baseline: success_rate=0.9947, fail_rate=0.00015, duration_p99=59ms
+  # ---------------------------------------------------------------
+  - name: db
+    sli:
+      name: db_query_success
+      kind: latency
+      formula: "count(success=true AND duration_ms < 100ms) / count(all queries)"
+      promql_good: 'sum(rate(pg_query_total{success="true",le="100"}[1m]))'
+      promql_total: 'sum(rate(pg_query_total[1m]))'
+      source: data/db_query_log.jsonl
+    slo:
+      target: 0.999           # 99.9% — baseline 99.47% includes DB incident; normal ~99.98%
+      window_days: 30
+    budget:
+      total_events_per_month: 1726380     # 57546 events/day × 30
+      allowed_failures_per_month: 1726    # (1 - 0.999) × 1726380
+      downtime_minutes_equivalent: 43     # 1726 / (57546/1440) ≈ 43 min
+
+  # ---------------------------------------------------------------
+  # Frontend — CDN / SPA
+  # Baseline: success_rate=0.9861, fail_rate=0.0139, dom_ready_p99=1430ms
+  # "good" = dom_ready < 3000ms AND no js_error AND no network_error
+  # ---------------------------------------------------------------
+  - name: frontend
+    sli:
+      name: frontend_page_load_ok
+      kind: availability
+      formula: "count(dom_ready_ms < 3000 AND js_error=false AND network_error=false) / count(all page loads)"
+      promql_good: 'sum(rate(rum_page_load_total{dom_ready_le="3000",js_error="false",net_error="false"}[1m]))'
+      promql_total: 'sum(rate(rum_page_load_total[1m]))'
+      source: data/frontend_rum.jsonl
+    slo:
+      target: 0.99            # 99% — baseline 98.61% includes CDN incident; normal ~99.2%
+      window_days: 30
+    budget:
+      total_events_per_month: 5184000     # 172800 events/day × 30
+      allowed_failures_per_month: 51840   # (1 - 0.99) × 5184000
+      downtime_minutes_equivalent: 432    # 51840 / (172800/1440) ≈ 432 min
