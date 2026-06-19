@@ -1,0 +1,87 @@
+{
+  "captured_at": "2026-06-16T09:58:57.708747+00:00",
+  "duration_sec": 60,
+  "sample_count": 4,
+  "services": {
+    "frontend": {
+      "latency_p99_mean": 0.02485,
+      "latency_p99_max": 0.02485,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.275263,
+      "request_rate_max": 0.288861
+    },
+    "api-gateway": {
+      "latency_p99_mean": 0.047141,
+      "latency_p99_max": 0.0485,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 1.078397,
+      "request_rate_max": 1.083228
+    },
+    "payment-svc": {
+      "latency_p99_mean": 0.049737,
+      "latency_p99_max": 0.04975,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.275267,
+      "request_rate_max": 0.28871
+    },
+    "inventory-svc": {
+      "latency_p99_mean": 0.049737,
+      "latency_p99_max": 0.04975,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.27074,
+      "request_rate_max": 0.288856
+    },
+    "notification-svc": {
+      "latency_p99_mean": 0.0302,
+      "latency_p99_max": 0.04625,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.281521,
+      "request_rate_max": 0.288845
+    },
+    "checkout-svc": {
+      "latency_p99_mean": 0.049634,
+      "latency_p99_max": 0.049659,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.270796,
+      "request_rate_max": 0.270939
+    },
+    "auth-svc": {
+      "latency_p99_mean": 0.02485,
+      "latency_p99_max": 0.02485,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.270781,
+      "request_rate_max": 0.270929
+    },
+    "log-collector": {
+      "latency_p99_mean": 0.02485,
+      "latency_p99_max": 0.02485,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.27976,
+      "request_rate_max": 0.28884
+    },
+    "dns-resolver": {
+      "latency_p99_mean": 0.009941,
+      "latency_p99_max": 0.009946,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.279815,
+      "request_rate_max": 0.288923
+    },
+    "cache-svc": {
+      "latency_p99_mean": 0.00495,
+      "latency_p99_max": 0.00495,
+      "error_rate_mean": 0.0,
+      "error_rate_max": 0.0,
+      "request_rate_mean": 0.270757,
+      "request_rate_max": 0.270895
+    }
+  }
+}

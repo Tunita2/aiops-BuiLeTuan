@@ -1,0 +1,331 @@
+# =============================================================================
+# W3-D2 Chaos Experiment Catalog -- 10 experiments
+# Each entry: name, hypothesis, blast_radius, rollback, measurement, ground_truth
+# Ref: S5 Experiment Design Template + S8.3 Catalog
+# =============================================================================
+# NOTE: Experiments use HTTP injection via /config endpoint for reliability
+# on Windows Docker Desktop (Pumba netem requires NET_ADMIN on Linux).
+# =============================================================================
+
+experiments:
+
+  # -- Experiment 1 ------------------------------------------------
+  - id: 1
+    name: "payment_latency"
+    target: "payment-svc"
+    fault_type: "latency"
+    hypothesis: |
+      Steady-state: order_success_rate >= 99.5%, checkout_p99 <= 200ms.
+      When payment-svc receives +500ms latency injection,
+      the AIOps pipeline will detect a latency anomaly on payment-svc
+      within 60s. RCA should identify payment-svc as root cause.
+      checkout-svc p99 will increase due to downstream dependency.
+    blast_radius:
+      target: "w3d2-payment-svc"
+      duration: 60
+      traffic_impact: "all requests to payment-svc slowed +500ms"
+    rollback:
+      automatic: true
+      method: "POST /config {latency_ms: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_request_duration_seconds (payment-svc)"
+        - "downstream_call_duration_seconds (checkout-svc -> payment-svc)"
+        - "http_errors_total (payment-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "payment-svc"
+      fault_description: "latency injection +500ms on payment-svc via /config"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"latency_ms": 500}'
+
+  # -- Experiment 2 ------------------------------------------------
+  - id: 2
+    name: "payment_packet_loss"
+    target: "payment-svc"
+    fault_type: "network_loss"
+    hypothesis: |
+      Steady-state: payment-svc error_rate < 1%, p99 < 200ms.
+      When 30% error rate is injected on payment-svc (simulating packet loss),
+      the pipeline will detect elevated error_rate on payment-svc
+      within 60s. RCA should identify payment-svc as root cause.
+      checkout-svc will see downstream errors.
+    blast_radius:
+      target: "w3d2-payment-svc"
+      duration: 60
+      traffic_impact: "30% of requests to payment-svc return 500"
+    rollback:
+      automatic: true
+      method: "POST /config {error_rate: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_errors_total (payment-svc)"
+        - "downstream_call_errors_total (checkout-svc)"
+        - "http_request_duration_seconds (payment-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "payment-svc"
+      fault_description: "error injection 30% on payment-svc via /config"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"error_rate": 0.30}'
+
+  # -- Experiment 3 ------------------------------------------------
+  - id: 3
+    name: "inventory_kill"
+    target: "inventory-svc"
+    fault_type: "availability"
+    hypothesis: |
+      Steady-state: inventory-svc responds to all health checks.
+      When inventory-svc container is killed,
+      the pipeline will detect a service_availability anomaly
+      on inventory-svc within 30s. RCA should pick inventory-svc.
+      checkout-svc will report downstream_error.
+    blast_radius:
+      target: "w3d2-inventory-svc"
+      duration: 60
+      traffic_impact: "inventory-svc fully unavailable during kill"
+    rollback:
+      automatic: true
+      method: "docker compose restart inventory-svc"
+      trigger_when: "experiment duration expires"
+    measurement:
+      metrics:
+        - "up{instance='inventory-svc:8080'}"
+        - "downstream_call_errors_total (checkout-svc)"
+        - "http_errors_total (inventory-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "inventory-svc"
+      fault_description: "docker kill inventory-svc container"
+    inject_cmd_args:
+      tool: "docker"
+      params: "kill w3d2-inventory-svc"
+
+  # -- Experiment 4 ------------------------------------------------
+  - id: 4
+    name: "gateway_cpu_stress"
+    target: "api-gateway"
+    fault_type: "cpu_saturation"
+    hypothesis: |
+      Steady-state: api-gateway p99 < 50ms, all downstream services normal.
+      When api-gateway CPU is stressed to 90%, the pipeline will detect
+      latency anomaly on api-gateway within 60s.
+      RCA should identify api-gateway as root cause (upstream source).
+    blast_radius:
+      target: "w3d2-api-gateway"
+      duration: 60
+      traffic_impact: "api-gateway processing slowed, all downstream affected"
+    rollback:
+      automatic: true
+      method: "stress-ng process terminates after duration"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_request_duration_seconds (api-gateway)"
+        - "http_request_duration_seconds (all downstream)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "api-gateway"
+      fault_description: "stress-ng CPU 90% inside api-gateway container"
+    inject_cmd_args:
+      tool: "docker_exec"
+      params: "stress-ng --cpu 2 --cpu-load 90 --timeout 60s"
+
+  # -- Experiment 5 ------------------------------------------------
+  - id: 5
+    name: "payment_db_memory"
+    target: "payment-db"
+    fault_type: "memory"
+    hypothesis: |
+      Steady-state: payment-db responds normally, payment-svc p99 < 100ms.
+      When payment-db gets +800ms latency + 20% errors (simulating
+      memory pressure causing slow queries and OOM), the pipeline
+      will detect anomalies on payment-svc within 60s.
+    blast_radius:
+      target: "w3d2-payment-db"
+      duration: 60
+      traffic_impact: "payment-db slow and failing, payment-svc affected"
+    rollback:
+      automatic: true
+      method: "POST /config {latency_ms: 0, error_rate: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "downstream_call_errors_total (payment-svc -> payment-db)"
+        - "http_request_duration_seconds (payment-svc)"
+        - "http_errors_total (payment-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "payment-db"
+      fault_description: "latency+error injection on payment-db via /config"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"latency_ms": 800, "error_rate": 0.20}'
+
+  # -- Experiment 6 ------------------------------------------------
+  - id: 6
+    name: "auth_clock_skew"
+    target: "auth-svc"
+    fault_type: "time_skew"
+    hypothesis: |
+      Steady-state: auth-svc validates tokens correctly, error_rate < 1%.
+      When auth-svc has 30% error injection (simulating clock skew
+      causing JWT validation failures), the pipeline should detect
+      elevated error_rate on auth-svc within 90s. RCA should identify auth-svc.
+    blast_radius:
+      target: "w3d2-auth-svc"
+      duration: 60
+      traffic_impact: "auth-svc rejects 30% of requests"
+    rollback:
+      automatic: true
+      method: "POST /config {error_rate: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_errors_total (auth-svc)"
+        - "http_request_duration_seconds (auth-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "auth-svc"
+      fault_description: "Simulated clock skew via error injection on auth-svc"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"error_rate": 0.30}'
+
+  # -- Experiment 7 ------------------------------------------------
+  - id: 7
+    name: "log_collector_disk"
+    target: "log-collector"
+    fault_type: "disk_fill"
+    hypothesis: |
+      Steady-state: log-collector ingests logs normally.
+      When log-collector gets +1s latency (simulating disk I/O wait),
+      the pipeline may or may not detect this -- log-collector is
+      non-critical infrastructure.
+      If detected, RCA should pick log-collector.
+    blast_radius:
+      target: "w3d2-log-collector"
+      duration: 60
+      traffic_impact: "log ingestion slowed significantly"
+    rollback:
+      automatic: true
+      method: "POST /config {latency_ms: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_request_duration_seconds (log-collector)"
+        - "http_errors_total (log-collector)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: false
+      expected_rca_service: "log-collector"
+      fault_description: "latency injection +1000ms on log-collector"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"latency_ms": 1000}'
+
+  # -- Experiment 8 ------------------------------------------------
+  - id: 8
+    name: "frontend_gateway_partition"
+    target: "frontend"
+    fault_type: "network_partition"
+    hypothesis: |
+      Steady-state: frontend -> api-gateway chain works, p99 < 100ms.
+      When frontend gets 100% error injection (simulating network partition),
+      the pipeline will detect errors on frontend within 30s.
+      RCA should identify frontend.
+    blast_radius:
+      target: "w3d2-frontend"
+      duration: 45
+      traffic_impact: "frontend completely broken"
+    rollback:
+      automatic: true
+      method: "POST /config {error_rate: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_errors_total (frontend)"
+        - "downstream_call_errors_total (frontend)"
+        - "http_request_duration_seconds (frontend)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "frontend"
+      fault_description: "100% error injection on frontend (partition simulation)"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"error_rate": 0.95}'
+
+  # -- Experiment 9 ------------------------------------------------
+  - id: 9
+    name: "dns_slow_lookup"
+    target: "dns-resolver"
+    fault_type: "dns_latency"
+    hypothesis: |
+      Steady-state: dns-resolver responds in < 20ms.
+      When dns-resolver gets +2s latency injection, services that
+      depend on it will experience delays.
+      The pipeline should detect latency anomaly on dns-resolver.
+      RCA should pick dns-resolver.
+    blast_radius:
+      target: "w3d2-dns-resolver"
+      duration: 60
+      traffic_impact: "dns-resolver latency +2s on all queries"
+    rollback:
+      automatic: true
+      method: "POST /config {latency_ms: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_request_duration_seconds (dns-resolver)"
+        - "downstream_call_duration_seconds (api-gateway -> dns-resolver)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "dns-resolver"
+      fault_description: "latency injection +2000ms on dns-resolver"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"latency_ms": 2000}'
+
+  # -- Experiment 10 -----------------------------------------------
+  - id: 10
+    name: "checkout_http500_retry_storm"
+    target: "checkout-svc"
+    fault_type: "cascade_retry"
+    hypothesis: |
+      Steady-state: checkout-svc error_rate < 1%.
+      When checkout-svc is injected with 40% HTTP 500 responses,
+      the pipeline should detect elevated error_rate on checkout-svc.
+      RCA should pick checkout-svc as root cause.
+    blast_radius:
+      target: "w3d2-checkout-svc"
+      duration: 60
+      traffic_impact: "40% of checkout-svc responses return 500"
+    rollback:
+      automatic: true
+      method: "POST /config {error_rate: 0}"
+      trigger_when: "duration expires"
+    measurement:
+      metrics:
+        - "http_errors_total (checkout-svc)"
+        - "http_errors_total (api-gateway)"
+        - "downstream_call_errors_total (api-gateway -> checkout-svc)"
+      capture_window: "t-2min to t+5min"
+    ground_truth:
+      expected_detected: true
+      expected_rca_service: "checkout-svc"
+      fault_description: "HTTP 500 injection 40% on checkout-svc via /config"
+    inject_cmd_args:
+      tool: "http_inject"
+      params: '{"error_rate": 0.40}'

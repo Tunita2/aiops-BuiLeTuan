@@ -1,0 +1,236 @@
+version: '3.8'
+
+# =============================================================================
+# AIOps Chaos Engineering Lab — W3-D2
+# 10 mock services + monitoring + AIOps pipeline
+# =============================================================================
+
+x-service-defaults: &service-defaults
+  build: ./services
+  restart: unless-stopped
+  networks:
+    - chaos-net
+
+services:
+  # ═══════════════════════════════════════════════════════════════════
+  # Mock Services (10)
+  # ═══════════════════════════════════════════════════════════════════
+
+  frontend:
+    <<: *service-defaults
+    container_name: w3d2-frontend
+    environment:
+      SERVICE_NAME: frontend
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://api-gateway:8080/health"
+      BASE_LATENCY_MS: "10"
+      BASE_ERROR_RATE: "0.002"
+    ports:
+      - "3000:8080"
+
+  api-gateway:
+    <<: *service-defaults
+    container_name: w3d2-api-gateway
+    environment:
+      SERVICE_NAME: api-gateway
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://checkout-svc:8080/health,http://payment-svc:8080/health,http://inventory-svc:8080/health,http://notification-svc:8080/health,http://auth-svc:8080/health,http://cache-svc:8080/health"
+      BASE_LATENCY_MS: "5"
+      BASE_ERROR_RATE: "0.001"
+    ports:
+      - "8081:8080"
+
+  payment-svc:
+    <<: *service-defaults
+    container_name: w3d2-payment-svc
+    environment:
+      SERVICE_NAME: payment-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://payment-db:8080/health"
+      BASE_LATENCY_MS: "30"
+      BASE_ERROR_RATE: "0.003"
+    depends_on:
+      - payment-db
+
+  inventory-svc:
+    <<: *service-defaults
+    container_name: w3d2-inventory-svc
+    environment:
+      SERVICE_NAME: inventory-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://inventory-db:8080/health"
+      BASE_LATENCY_MS: "25"
+      BASE_ERROR_RATE: "0.003"
+    depends_on:
+      - inventory-db
+
+  notification-svc:
+    <<: *service-defaults
+    container_name: w3d2-notification-svc
+    environment:
+      SERVICE_NAME: notification-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://kafka-mock:8080/health"
+      BASE_LATENCY_MS: "15"
+      BASE_ERROR_RATE: "0.002"
+    depends_on:
+      - kafka-mock
+
+  checkout-svc:
+    <<: *service-defaults
+    container_name: w3d2-checkout-svc
+    environment:
+      SERVICE_NAME: checkout-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://payment-svc:8080/health,http://inventory-svc:8080/health"
+      BASE_LATENCY_MS: "20"
+      BASE_ERROR_RATE: "0.002"
+    depends_on:
+      - payment-svc
+      - inventory-svc
+
+  auth-svc:
+    <<: *service-defaults
+    container_name: w3d2-auth-svc
+    environment:
+      SERVICE_NAME: auth-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "15"
+      BASE_ERROR_RATE: "0.001"
+
+  log-collector:
+    <<: *service-defaults
+    container_name: w3d2-log-collector
+    environment:
+      SERVICE_NAME: log-collector
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: "http://kafka-mock:8080/health"
+      BASE_LATENCY_MS: "10"
+      BASE_ERROR_RATE: "0.001"
+
+  dns-resolver:
+    <<: *service-defaults
+    container_name: w3d2-dns-resolver
+    environment:
+      SERVICE_NAME: dns-resolver
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "5"
+      BASE_ERROR_RATE: "0.001"
+
+  cache-svc:
+    <<: *service-defaults
+    container_name: w3d2-cache-svc
+    environment:
+      SERVICE_NAME: cache-svc
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "3"
+      BASE_ERROR_RATE: "0.001"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Backing Stores (mock — using same Flask image for simplicity)
+  # ═══════════════════════════════════════════════════════════════════
+
+  payment-db:
+    <<: *service-defaults
+    container_name: w3d2-payment-db
+    environment:
+      SERVICE_NAME: payment-db
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "8"
+      BASE_ERROR_RATE: "0.001"
+
+  inventory-db:
+    <<: *service-defaults
+    container_name: w3d2-inventory-db
+    environment:
+      SERVICE_NAME: inventory-db
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "8"
+      BASE_ERROR_RATE: "0.001"
+
+  kafka-mock:
+    <<: *service-defaults
+    container_name: w3d2-kafka-mock
+    environment:
+      SERVICE_NAME: kafka
+      SERVICE_PORT: "8080"
+      DOWNSTREAM_URLS: ""
+      BASE_LATENCY_MS: "5"
+      BASE_ERROR_RATE: "0.001"
+
+  redis:
+    image: redis:7-alpine
+    container_name: w3d2-redis
+    networks:
+      - chaos-net
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Traffic Generator
+  # ═══════════════════════════════════════════════════════════════════
+
+  traffic-gen:
+    <<: *service-defaults
+    container_name: w3d2-traffic-gen
+    command: ["python", "traffic_generator.py"]
+    depends_on:
+      - api-gateway
+      - frontend
+      - checkout-svc
+      - payment-svc
+      - inventory-svc
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Monitoring Stack
+  # ═══════════════════════════════════════════════════════════════════
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: w3d2-prometheus
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - chaos-net
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=1d'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: w3d2-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    networks:
+      - chaos-net
+
+  # ═══════════════════════════════════════════════════════════════════
+  # AIOps Pipeline
+  # ═══════════════════════════════════════════════════════════════════
+
+  aiops-pipeline:
+    build: ./pipeline
+    container_name: w3d2-aiops-pipeline
+    ports:
+      - "8000:8000"
+    environment:
+      PROMETHEUS_URL: "http://prometheus:9090"
+      DETECTOR_POLL_INTERVAL: "10"
+    depends_on:
+      - prometheus
+    networks:
+      - chaos-net
+
+networks:
+  chaos-net:
+    driver: bridge
+    name: w3d2-chaos-net
