@@ -24,3 +24,33 @@
 - **ROI:** 3.2 (Scenario 2 - 100 services) | 5.0 (Scenario 3 - 500 services)
 - **Payback:** 0.31 tháng (Scenario 2) | 0.20 tháng (Scenario 3)
 - **Verdict:** `worth_it` cho các hệ thống quy mô vừa và lớn có chi phí downtime cao.
+
+---
+
+## Nghiệm thu Tái hiện & Tính toán Chi phí
+
+### Lệnh chạy script tái hiện (Reproduction steps)
+Để tái hiện sự cố và ghi nhận timeline sự kiện:
+```powershell
+# Bước 1: Khởi chạy API container có middleware evil hoạt động
+$env:EVIL_REGEX_ACTIVE="1"
+docker compose -f reproduction/docker-compose.yml up -d --force-recreate api
+
+# Bước 2: Gửi request chứa query độc hại gây treo CPU (Catastrophic Backtracking)
+curl.exe --noproxy "*" --max-time 10 "http://127.0.0.1:8888/?q=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Bước 3: Ghi nhận sự kiện hệ thống vào timeline.json
+py scripts/capture_timeline.py --duration 60 --out timeline.json
+```
+
+### Kết quả output in ra màn hình của cost_model.py
+```
+Scenario 1 (20 services, 2 incidents/mo, $10k/hr downtime, $15k cost):
+{'monthly_value': 8000.0, 'monthly_cost': 15000.0, 'roi': 0.5333333333333333, 'payback_months': 1.875, 'verdict': 'not_worth_it'}
+
+Scenario 2 (100 services, 5 incidents/mo, $20k/hr downtime, $25k cost):
+{'monthly_value': 80000.0, 'monthly_cost': 25000.0, 'roi': 3.2, 'payback_months': 0.3125, 'verdict': 'worth_it'}
+
+Scenario 3 (Large E-commerce VN Scale, 500 services, 10 incidents/mo, $50k/hr downtime, $60k cost):
+{'monthly_value': 300000.0, 'monthly_cost': 60000.0, 'roi': 5.0, 'payback_months': 0.2, 'verdict': 'worth_it'}
+```
