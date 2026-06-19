@@ -1,0 +1,342 @@
+[
+  {
+    "ts": "2026-06-19T09:41:42+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:41:42+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:41:46+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:46+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:46+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:51+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:51+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:51+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:52+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:41:52+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:41:56+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:56+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:41:57+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:02+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:02+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:02+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:02+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:02+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:07+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:07+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:07+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:09+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:09+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:09+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:10+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:10+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:12+00:00",
+    "source": "docker",
+    "event": "exec_create: ls  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:12+00:00",
+    "source": "docker",
+    "event": "exec_start: ls  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:13+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:14+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:14+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:14+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:16+00:00",
+    "source": "docker",
+    "event": "exec_create: whoami  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:16+00:00",
+    "source": "docker",
+    "event": "exec_start: whoami  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:16+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_create: pwd  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_start: pwd  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_create: hostname  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_start: hostname  reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_create: df -h reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_start: df -h reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_create: echo Outage simulated reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_start: echo Outage simulated reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:17+00:00",
+    "source": "docker",
+    "event": "exec_die reproduction-api-1"
+  },
+  {
+    "ts": "2026-06-19T09:42:20+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:20+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:20+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:20+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:20+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:25+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:25+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:25+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:30+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:30+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:30+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:30+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:30+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:35+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:35+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:35+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:37+00:00",
+    "source": "docker",
+    "event": "exec_create: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:37+00:00",
+    "source": "docker",
+    "event": "exec_start: /bin/sh -c pg_isready -U mlflow mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:37+00:00",
+    "source": "docker",
+    "event": "exec_die mlflow-postgres"
+  },
+  {
+    "ts": "2026-06-19T09:42:38+00:00",
+    "source": "docker",
+    "event": "exec_create: curl -f http://localhost:5000/health mlflow-server"
+  },
+  {
+    "ts": "2026-06-19T09:42:38+00:00",
+    "source": "docker",
+    "event": "exec_start: curl -f http://localhost:5000/health mlflow-server"
+  }
+]

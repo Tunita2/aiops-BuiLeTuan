@@ -1,0 +1,112 @@
+{
+  "incidents": [
+    {
+      "id": "INC-W3-001",
+      "summary": "Payment service latency spike caused by slow DB queries during peak traffic",
+      "services_involved": ["payment-svc", "checkout-svc", "api-gateway"],
+      "root_cause_service": "payment-svc",
+      "root_cause_class": "slow_query",
+      "severity": "crit",
+      "remediation": "Optimize slow queries in payment-svc. Add connection pooling. Scale payment-db read replicas."
+    },
+    {
+      "id": "INC-W3-002",
+      "summary": "Payment service packet loss causing transaction failures and retry storms",
+      "services_involved": ["payment-svc", "checkout-svc", "api-gateway"],
+      "root_cause_service": "payment-svc",
+      "root_cause_class": "network_partition",
+      "severity": "crit",
+      "remediation": "Investigate network interface. Check for NIC errors. Apply circuit breaker on checkout-svc."
+    },
+    {
+      "id": "INC-W3-003",
+      "summary": "Inventory service crashes repeatedly due to OOM killer",
+      "services_involved": ["inventory-svc", "checkout-svc", "api-gateway"],
+      "root_cause_service": "inventory-svc",
+      "root_cause_class": "memory_leak",
+      "severity": "crit",
+      "remediation": "Fix memory leak in inventory query cache. Set proper memory limits. Add graceful degradation."
+    },
+    {
+      "id": "INC-W3-004",
+      "summary": "API gateway CPU saturation causing cascading latency across all downstream services",
+      "services_involved": ["api-gateway", "payment-svc", "inventory-svc", "checkout-svc", "notification-svc"],
+      "root_cause_service": "api-gateway",
+      "root_cause_class": "thread_starvation",
+      "severity": "crit",
+      "remediation": "Scale api-gateway horizontally. Add rate limiting. Investigate CPU-heavy middleware."
+    },
+    {
+      "id": "INC-W3-005",
+      "summary": "Payment DB memory exhaustion causing connection pool failures",
+      "services_involved": ["payment-db", "payment-svc", "checkout-svc"],
+      "root_cause_service": "payment-db",
+      "root_cause_class": "connection_pool_exhaustion",
+      "severity": "crit",
+      "remediation": "Increase payment-db memory. Tune connection pool size. Add connection timeout on payment-svc."
+    },
+    {
+      "id": "INC-W3-006",
+      "summary": "Auth service clock skew causing JWT validation failures",
+      "services_involved": ["auth-svc", "api-gateway"],
+      "root_cause_service": "auth-svc",
+      "root_cause_class": "tls_expiry",
+      "severity": "warn",
+      "remediation": "Sync NTP on auth-svc. Add clock skew tolerance to JWT validation. Monitor time drift."
+    },
+    {
+      "id": "INC-W3-007",
+      "summary": "Log collector disk full causing log ingestion pipeline lag",
+      "services_involved": ["log-collector"],
+      "root_cause_service": "log-collector",
+      "root_cause_class": "config_push",
+      "severity": "warn",
+      "remediation": "Increase disk quota. Add log rotation. Alert on disk usage > 80%."
+    },
+    {
+      "id": "INC-W3-008",
+      "summary": "Full network partition between frontend and api-gateway causing total service outage",
+      "services_involved": ["frontend", "api-gateway", "payment-svc", "inventory-svc", "checkout-svc"],
+      "root_cause_service": "api-gateway",
+      "root_cause_class": "network_partition",
+      "severity": "crit",
+      "remediation": "Implement redundant network paths. Add health-check based failover. Deploy multi-AZ."
+    },
+    {
+      "id": "INC-W3-009",
+      "summary": "DNS resolver slow lookups causing intermittent errors across all services",
+      "services_involved": ["dns-resolver", "api-gateway", "checkout-svc"],
+      "root_cause_service": "dns-resolver",
+      "root_cause_class": "slow_query",
+      "severity": "warn",
+      "remediation": "Add DNS caching layer. Use local DNS cache (dnsmasq). Monitor DNS latency."
+    },
+    {
+      "id": "INC-W3-010",
+      "summary": "Checkout service returning 500 errors causing retry storm on payment and inventory",
+      "services_involved": ["checkout-svc", "payment-svc", "inventory-svc", "api-gateway"],
+      "root_cause_service": "checkout-svc",
+      "root_cause_class": "bad_deploy",
+      "severity": "crit",
+      "remediation": "Rollback bad deployment. Add canary release. Implement circuit breaker on upstream callers."
+    },
+    {
+      "id": "INC-W3-011",
+      "summary": "Cache service Redis connection failure causing elevated latency on api-gateway",
+      "services_involved": ["cache-svc", "api-gateway"],
+      "root_cause_service": "cache-svc",
+      "root_cause_class": "connection_pool_exhaustion",
+      "severity": "warn",
+      "remediation": "Restart Redis. Check maxmemory policy. Add fallback to direct DB queries."
+    },
+    {
+      "id": "INC-W3-012",
+      "summary": "Notification service Kafka producer timeout causing message backlog",
+      "services_involved": ["notification-svc", "kafka"],
+      "root_cause_service": "notification-svc",
+      "root_cause_class": "downstream_provider",
+      "severity": "warn",
+      "remediation": "Scale Kafka partitions. Increase producer timeout. Add dead letter queue."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "scenario": "10-service microservices stack for AIOps Chaos Engineering Lab W3-D2",
+    "schema_version": "2.0",
+    "generated_for": "AIOps W3-D2 Chaos Engineering (Mon Jun 16, 2026)"
+  },
+  "services": [
+    {"name": "frontend",          "tier": "edge",  "team": "frontend",   "criticality": "high"},
+    {"name": "api-gateway",       "tier": "edge",  "team": "platform",   "criticality": "critical"},
+    {"name": "payment-svc",       "tier": "api",   "team": "payments",   "criticality": "critical"},
+    {"name": "inventory-svc",     "tier": "api",   "team": "inventory",  "criticality": "high"},
+    {"name": "notification-svc",  "tier": "api",   "team": "growth",     "criticality": "low"},
+    {"name": "checkout-svc",      "tier": "api",   "team": "checkout",   "criticality": "critical"},
+    {"name": "auth-svc",          "tier": "api",   "team": "identity",   "criticality": "high"},
+    {"name": "log-collector",     "tier": "infra", "team": "platform",   "criticality": "medium"},
+    {"name": "dns-resolver",      "tier": "infra", "team": "platform",   "criticality": "high"},
+    {"name": "cache-svc",         "tier": "api",   "team": "platform",   "criticality": "medium"}
+  ],
+  "stores": [
+    {"name": "payment-db",    "type": "postgres", "team": "payments",  "criticality": "critical"},
+    {"name": "inventory-db",  "type": "postgres", "team": "inventory", "criticality": "high"},
+    {"name": "kafka",         "type": "kafka",    "team": "platform",  "criticality": "medium"},
+    {"name": "redis",         "type": "redis",    "team": "platform",  "criticality": "medium"}
+  ],
+  "edges": [
+    {"from": "frontend",          "to": "api-gateway",       "type": "http"},
+    {"from": "api-gateway",       "to": "payment-svc",       "type": "http"},
+    {"from": "api-gateway",       "to": "inventory-svc",     "type": "http"},
+    {"from": "api-gateway",       "to": "notification-svc",  "type": "http"},
+    {"from": "api-gateway",       "to": "checkout-svc",      "type": "http"},
+    {"from": "api-gateway",       "to": "auth-svc",          "type": "http"},
+    {"from": "checkout-svc",      "to": "payment-svc",       "type": "http"},
+    {"from": "checkout-svc",      "to": "inventory-svc",     "type": "http"},
+    {"from": "payment-svc",       "to": "payment-db",        "type": "postgres"},
+    {"from": "inventory-svc",     "to": "inventory-db",      "type": "postgres"},
+    {"from": "notification-svc",  "to": "kafka",             "type": "kafka"},
+    {"from": "cache-svc",         "to": "redis",             "type": "redis"},
+    {"from": "api-gateway",       "to": "cache-svc",         "type": "http"},
+    {"from": "api-gateway",       "to": "dns-resolver",      "type": "http"},
+    {"from": "log-collector",     "to": "kafka",             "type": "kafka"}
+  ],
+  "topology_notes": [
+    "frontend → api-gateway is the entry point — chaos here affects everything.",
+    "checkout-svc has a diamond dependency: calls both payment-svc and inventory-svc.",
+    "payment-svc → payment-db is the critical financial path.",
+    "notification-svc and log-collector are non-critical — alert here should not page.",
+    "dns-resolver failure causes intermittent errors across services.",
+    "cache-svc → redis failure degrades but should not break checkout flow."
+  ]
+}
